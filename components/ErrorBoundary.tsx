@@ -1,5 +1,5 @@
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 
 interface Props {
@@ -11,10 +11,8 @@ interface State {
   error: Error | null;
 }
 
-// Fixed: Explicitly import Component from React and extend it.
-// This ensures that TypeScript correctly identifies ErrorBoundary as a React class component,
-// providing access to inherited members like this.setState and this.props.
-class ErrorBoundary extends Component<Props, State> {
+// Fixed: Explicitly extend React.Component to resolve "Property does not exist" errors for state and props
+class ErrorBoundary extends React.Component<Props, State> {
   public state: State = {
     hasError: false,
     error: null,
@@ -28,8 +26,8 @@ class ErrorBoundary extends Component<Props, State> {
     console.error('Uncaught error:', error, errorInfo);
   }
 
-  // Fixed: handleReset can now correctly call this.setState.
   private handleReset = () => {
+    // Fixed: Correctly referencing setState from the class instance
     this.setState({ hasError: false, error: null });
     window.location.href = '/';
   };
@@ -60,7 +58,8 @@ class ErrorBoundary extends Component<Props, State> {
                 <Home className="w-5 h-5" /> Back to Home
               </button>
             </div>
-            {process.env.NODE_ENV === 'development' && (
+            {/* Fix: Use import.meta.env for Vite instead of process.env */}
+            {import.meta.env.DEV && (
               <div className="mt-8 p-4 bg-black/50 rounded-xl text-left overflow-auto max-h-40">
                 <code className="text-xs text-red-400">{this.state.error?.toString()}</code>
               </div>
@@ -70,7 +69,7 @@ class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    // Fixed: this.props.children is now accessible and correctly typed.
+    // Fixed: Correctly referencing props from the class instance
     return this.props.children;
   }
 }
